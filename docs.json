@@ -18,8 +18,8 @@
             "group": "Getting started",
             "pages": [
               "index",
-              "quickstart",
-              "authentication"
+              "getting-started/quickstart",
+              "getting-started/authentication"
             ]
           },
           {
@@ -27,6 +27,12 @@
             "pages": [
               "concepts/projects-and-tasks",
               "concepts/task-lifecycle"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/manage-a-task"
             ]
           },
           {
@@ -39,7 +45,25 @@
       },
       {
         "tab": "API Reference",
-        "openapi": "openapi.yaml"
+        "openapi": "openapi.yaml",
+        "pages": [
+          "api-reference/overview",
+          {
+            "group": "Projects",
+            "pages": [
+              "POST /projects",
+              "GET /projects/{project_id}/tasks"
+            ]
+          },
+          {
+            "group": "Tasks",
+            "pages": [
+              "POST /tasks",
+              "PATCH /tasks/{task_id}",
+              "DELETE /tasks/{task_id}"
+            ]
+          }
+        ]
       }
     ]
   },
