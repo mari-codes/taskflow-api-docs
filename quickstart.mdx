@@ -1,0 +1,184 @@
+---
+title: "Quickstart"
+description: "Create a project, add a task, update its status, and delete it using the TaskFlow API."
+---
+
+Complete the TaskFlow workflow by creating a project and managing its first task.
+
+## Before you begin
+
+You need:
+
+- A TaskFlow API key
+- A tool for sending HTTP requests, such as cURL, Postman, or Insomnia
+- The TaskFlow base URL:
+
+```text
+https://test-writechoice.onrender.com
+```
+
+<Note>
+  The first request may take up to 60 seconds if the API has been idle.
+</Note>
+
+## Authenticate your requests
+
+Every request must include your API key as a Bearer token:
+
+```http
+Authorization: Bearer YOUR_API_KEY
+```
+
+Replace `YOUR_API_KEY` with your actual key. Keep the key private and do not commit it to source control.
+
+## Complete the workflow
+
+<Steps>
+  <Step title="Create a project">
+    Send a `POST` request to `/projects`.
+
+    ```bash
+    curl --request POST       --url https://test-writechoice.onrender.com/projects       --header "Authorization: Bearer YOUR_API_KEY"       --header "Content-Type: application/json"       --data '{
+        "name": "TaskFlow Documentation",
+        "description": "Project created while learning the TaskFlow API."
+      }'
+    ```
+
+    A successful request returns `201 Created`:
+
+    ```json
+    {
+      "project_id": "58a61c80-6409-4ed7-a03d-0cace79fdf2f",
+      "name": "TaskFlow Documentation",
+      "description": "Project created while learning the TaskFlow API.",
+      "created_at": "2026-07-31T16:14:28.818Z"
+    }
+    ```
+
+    Save the returned `project_id`. You need it to create and list tasks.
+  </Step>
+
+  <Step title="Create a task">
+    Send the project ID in a `POST` request to `/tasks`.
+
+    ```bash
+    curl --request POST       --url https://test-writechoice.onrender.com/tasks       --header "Authorization: Bearer YOUR_API_KEY"       --header "Content-Type: application/json"       --data '{
+        "project_id": "58a61c80-6409-4ed7-a03d-0cace79fdf2f",
+        "title": "Write the quickstart guide",
+        "description": "Create a guide showing the complete TaskFlow workflow."
+      }'
+    ```
+
+    A successful request returns `201 Created`:
+
+    ```json
+    {
+      "task_id": "b7a0263b-7078-4f65-82a6-6261d0087837",
+      "project_id": "58a61c80-6409-4ed7-a03d-0cace79fdf2f",
+      "title": "Write the quickstart guide",
+      "description": "Create a guide showing the complete TaskFlow workflow.",
+      "status": "pending",
+      "created_at": "2026-07-31T16:20:21.800Z",
+      "updated_at": "2026-07-31T16:20:21.800Z"
+    }
+    ```
+
+    New tasks start with the `pending` status. Save the returned `task_id` for later requests.
+  </Step>
+
+  <Step title="List the project's tasks">
+    Send a `GET` request using the project ID:
+
+    ```bash
+    curl --request GET       --url https://test-writechoice.onrender.com/projects/58a61c80-6409-4ed7-a03d-0cace79fdf2f/tasks       --header "Authorization: Bearer YOUR_API_KEY"
+    ```
+
+    A successful request returns `200 OK`:
+
+    ```json
+    {
+      "project_id": "58a61c80-6409-4ed7-a03d-0cace79fdf2f",
+      "total": 1,
+      "tasks": [
+        {
+          "task_id": "b7a0263b-7078-4f65-82a6-6261d0087837",
+          "project_id": "58a61c80-6409-4ed7-a03d-0cace79fdf2f",
+          "title": "Write the quickstart guide",
+          "description": "Create a guide showing the complete TaskFlow workflow.",
+          "status": "pending",
+          "created_at": "2026-07-31T16:20:21.800Z",
+          "updated_at": "2026-07-31T16:20:21.800Z"
+        }
+      ]
+    }
+    ```
+
+    If the project exists but has no tasks, the API returns `total: 0` and an empty `tasks` array.
+  </Step>
+
+  <Step title="Update the task status">
+    Use the task ID in a `PATCH` request:
+
+    ```bash
+    curl --request PATCH       --url https://test-writechoice.onrender.com/tasks/b7a0263b-7078-4f65-82a6-6261d0087837       --header "Authorization: Bearer YOUR_API_KEY"       --header "Content-Type: application/json"       --data '{
+        "status": "in_progress"
+      }'
+    ```
+
+    A successful request returns `200 OK` with the updated task:
+
+    ```json
+    {
+      "task_id": "b7a0263b-7078-4f65-82a6-6261d0087837",
+      "project_id": "58a61c80-6409-4ed7-a03d-0cace79fdf2f",
+      "title": "Write the quickstart guide",
+      "description": "Create a guide showing the complete TaskFlow workflow.",
+      "status": "in_progress",
+      "created_at": "2026-07-31T16:20:21.800Z",
+      "updated_at": "2026-07-31T16:25:40.739Z"
+    }
+    ```
+
+    Valid status values are:
+
+    - `pending`
+    - `in_progress`
+    - `done`
+
+    You can also update the task's `title` and `description`.
+  </Step>
+
+  <Step title="Delete the task">
+    Permanently delete the task using its ID:
+
+    ```bash
+    curl --request DELETE       --url https://test-writechoice.onrender.com/tasks/b7a0263b-7078-4f65-82a6-6261d0087837       --header "Authorization: Bearer YOUR_API_KEY"
+    ```
+
+    A successful request returns `200 OK`:
+
+    ```json
+    {
+      "message": "Task 'b7a0263b-7078-4f65-82a6-6261d0087837' was successfully deleted."
+    }
+    ```
+
+    <Warning>
+      Task deletion is permanent and cannot be undone.
+    </Warning>
+  </Step>
+</Steps>
+
+## Common errors
+
+| Status | Meaning | Typical cause |
+| --- | --- | --- |
+| `400 Bad Request` | The request could not be processed. | A required field is missing or a status value is invalid. |
+| `401 Unauthorized` | Authentication failed. | The Bearer token is missing or invalid. |
+| `404 Not Found` | The requested resource does not exist. | The project or task ID is invalid or the task was already deleted. |
+
+## Next steps
+
+- Read [Authentication](/authentication) to learn how API keys are sent.
+- Read [Projects and tasks](/concepts/projects-and-tasks) to understand the resource relationship.
+- Use the API Reference to explore request and response schemas for every endpoint.

@@ -1,0 +1,74 @@
+---
+title: "Authentication"
+description: "Authenticate TaskFlow API requests using a Bearer token."
+sidebarTitle: "Authentication"
+icon: "key"
+---
+
+TaskFlow uses Bearer authentication. Every request must include a valid API key in the `Authorization` header.
+
+## Authorization header
+
+Use this format:
+
+```http
+Authorization: Bearer YOUR_API_KEY
+```
+
+Replace `YOUR_API_KEY` with the key provided for your environment.
+
+<Warning>
+  Keep your API key private. Do not include it in public repositories, client-side applications, screenshots, or shared request collections.
+</Warning>
+
+## cURL example
+
+```bash
+curl --request POST \
+  --url https://test-writechoice.onrender.com/projects \
+  --header "Authorization: Bearer YOUR_API_KEY" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "name": "Website redesign",
+    "description": "Tasks for the website redesign project."
+  }'
+```
+
+## Postman setup
+
+In Postman:
+
+1. Open the request's **Authorization** tab.
+2. Select **Bearer Token**.
+3. Enter your API key or use an environment variable such as `{{apiKey}}`.
+4. Send the request.
+
+You can also store the base URL as an environment variable:
+
+```text
+baseUrl = https://test-writechoice.onrender.com
+```
+
+Then use it in requests:
+
+```text
+{{baseUrl}}/projects
+```
+
+## Authentication errors
+
+The API returns `401 Unauthorized` when the header is missing or the API key is invalid.
+
+```json
+{
+  "error": "Unauthorized",
+  "message": "Missing or invalid API key. Provide a valid key in the Authorization header as: Bearer <api_key>"
+}
+```
+
+When troubleshooting a `401` response, confirm that:
+
+- The header name is exactly `Authorization`.
+- The value begins with `Bearer`, followed by one space.
+- The API key does not contain extra spaces or quotation marks.
+- The request is using the correct environment variable.

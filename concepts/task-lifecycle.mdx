@@ -1,0 +1,85 @@
+---
+title: "Task lifecycle"
+description: "Learn how task statuses work and how to update task information."
+sidebarTitle: "Task lifecycle"
+icon: "arrows-rotate"
+---
+
+Every new TaskFlow task starts with the `pending` status.
+
+## Status values
+
+| Status | Meaning |
+| --- | --- |
+| `pending` | The task has not been started. |
+| `in_progress` | Work on the task is underway. |
+| `done` | The task has been completed. |
+
+A typical workflow is:
+
+```text
+pending → in_progress → done
+```
+
+The API accepts any of the three supported values when updating a task. It does not require clients to follow a specific transition order.
+
+## Update a status
+
+Use `PATCH /tasks/{task_id}`:
+
+```bash
+curl --request PATCH \
+  --url https://test-writechoice.onrender.com/tasks/TASK_ID \
+  --header "Authorization: Bearer YOUR_API_KEY" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "status": "in_progress"
+  }'
+```
+
+A successful update returns the complete task and a new `updated_at` value.
+
+## Update multiple fields
+
+You can update `status`, `title`, and `description` in one request:
+
+```json
+{
+  "title": "Publish the quickstart guide",
+  "description": "Review and publish the completed guide.",
+  "status": "done"
+}
+```
+
+Fields that are not included remain unchanged.
+
+<Note>
+  Always include at least one supported field in an update request.
+</Note>
+
+## Invalid status
+
+Unsupported values return `400 Bad Request`.
+
+For example, `completed` is not valid:
+
+```json
+{
+  "error": "Bad Request",
+  "message": "Invalid status 'completed'. Allowed values are: pending, in_progress, done."
+}
+```
+
+## Delete a completed task
+
+Task deletion is permanent:
+
+```bash
+curl --request DELETE \
+  --url https://test-writechoice.onrender.com/tasks/TASK_ID \
+  --header "Authorization: Bearer YOUR_API_KEY"
+```
+
+<Warning>
+  Deleted tasks cannot be restored. A later request using the deleted `task_id` returns `404 Not Found`.
+</Warning>
