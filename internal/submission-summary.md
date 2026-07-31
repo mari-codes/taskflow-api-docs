@@ -2,7 +2,7 @@
 
 ## Project links
 
-- Live documentation: 
+- Live documentation: `https://mari-codes.mintlify.site/`
 - GitHub repository: `https://github.com/mari-codes/taskflow-api-docs`
 
 ## Process
