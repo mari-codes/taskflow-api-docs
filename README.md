@@ -4,12 +4,12 @@ Public developer documentation for the TaskFlow API, built with Mintlify and gen
 
 ## Project links
 
-- Live documentation: ``
-- GitHub repository: `https://github.com/mari-codes/taskflow-api-docs`
+- [Live documentation](https://mari-codes.mintlify.site/)
+- [GitHub repository](https://github.com/mari-codes/taskflow-api-docs)
 
 ## About the project
 
-TaskFlow is a simple task management API that allows developers to:
+TaskFlow is a task management API that allows developers to:
 
 - Create projects
 - Create tasks inside existing projects
@@ -19,43 +19,39 @@ TaskFlow is a simple task management API that allows developers to:
 
 This repository contains the public-facing documentation created for the TaskFlow Technical Writing Test.
 
-## Documentation structure
+## Documentation
 
-The documentation is organized around the developer journey.
+The documentation is organized around the developer journey, from the first authenticated request to endpoint-level reference material.
 
 ### Getting started
 
-Introduces the API and helps a developer complete the first successful workflow.
-
-- Introduction
-- Quickstart
-- Authentication
+- [Introduction](https://mari-codes.mintlify.site/) — Overview of the API, available operations, and resource workflow.
+- [Quickstart](https://mari-codes.mintlify.site/getting-started/quickstart) — Complete the first project and task workflow.
+- [Authentication](https://mari-codes.mintlify.site/getting-started/authentication) — Configure Bearer authentication and troubleshoot authorization errors.
 
 ### Core concepts
 
-Explains how the API resources behave.
-
-- Projects and tasks
-- Task lifecycle
+- [Projects and tasks](https://mari-codes.mintlify.site/concepts/projects-and-tasks) — Understand the relationship between projects, tasks, and their IDs.
+- [Task lifecycle](https://mari-codes.mintlify.site/concepts/task-lifecycle) — Learn about task statuses and update behavior.
 
 ### Guides
 
-Provides task-oriented instructions for completing a full workflow.
-
-- Manage a task
+- [Manage a task](https://mari-codes.mintlify.site/guides/manage-a-task) — Follow an end-to-end workflow from project creation through task deletion.
 
 ### Resources
 
-Helps developers understand and troubleshoot failed requests.
-
-- Errors and troubleshooting
+- [Errors and troubleshooting](https://mari-codes.mintlify.site/resources/errors) — Review error formats, HTTP status codes, and common solutions.
 
 ### API reference
 
-The endpoint reference is generated from `openapi.yaml` and grouped by resource:
+- [API overview](https://mari-codes.mintlify.site/api-reference/overview) — Review API conventions, resource formats, authentication requirements, and the recommended endpoint order.
+
+The interactive endpoint reference is generated from `openapi.yaml` and organized into two resource groups:
 
 - Projects
 - Tasks
+
+It includes all five TaskFlow API operations.
 
 ## Run locally
 
@@ -92,16 +88,10 @@ http://localhost:3000
 
 ## Validate the project
 
-Validate the documentation configuration:
+Validate the documentation configuration and OpenAPI definition:
 
 ```bash
-mint validate
-```
-
-Validate the OpenAPI specification:
-
-```bash
-mint openapi-check openapi.yaml
+mintlify validate
 ```
 
 ## API testing
@@ -124,18 +114,15 @@ Additional tests covered:
 - Empty task lists
 - Nonexistent projects
 - Invalid task statuses
+- Task title and description updates
 - Repeated task deletion
 - Empty task update requests
 
-Detailed testing notes are available in:
-
-```text
-internal/testing-notes.md
-```
+Detailed results are available in the [API testing notes](internal/testing-notes.md).
 
 ## Known API discrepancy
 
-The OpenAPI specification states that `PATCH /tasks/{task_id}` requires at least one of these fields:
+The OpenAPI specification states that `PATCH /tasks/{task_id}` requires at least one of the following fields:
 
 - `status`
 - `title`
@@ -170,15 +157,17 @@ taskflow-api-docs/
 └── README.md
 ```
 
+The `internal` directory contains project notes and submission material. It is excluded from the public Mintlify navigation.
+
 ## Security
 
-The API key used for live testing is not included in this repository.
-
-Public examples use:
+Public documentation examples use a placeholder instead of displaying an API key:
 
 ```http
 Authorization: Bearer YOUR_API_KEY
 ```
+
+API keys should be stored securely and should not be added to public examples or client-side applications.
 
 ## Built with
 
