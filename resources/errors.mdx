@@ -1,0 +1,99 @@
+---
+title: "Errors"
+description: "Understand TaskFlow error responses and troubleshoot failed requests."
+sidebarTitle: "Errors"
+icon: "triangle-exclamation"
+---
+
+TaskFlow uses standard HTTP status codes and returns errors as JSON.
+
+## Error format
+
+Error responses contain two fields:
+
+```json
+{
+  "error": "Not Found",
+  "message": "No task found with task_id 'abc123'."
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `error` | Short error category. |
+| `message` | Human-readable explanation of what went wrong. |
+
+## Status codes
+
+| Status | Meaning | Common causes |
+| --- | --- | --- |
+| `400 Bad Request` | The request is invalid. | A required field is missing, a string is empty, or a status is unsupported. |
+| `401 Unauthorized` | Authentication failed. | The Bearer token is missing or invalid. |
+| `404 Not Found` | A resource could not be found. | The project or task ID does not exist, or the task was already deleted. |
+
+## 400 Bad Request
+
+A project requires a non-empty `name`:
+
+```json
+{
+  "error": "Bad Request",
+  "message": "The 'name' field is required and must be a non-empty string."
+}
+```
+
+A task requires a `project_id` and `title`. Invalid task statuses also return `400`.
+
+## 401 Unauthorized
+
+A missing or invalid token returns:
+
+```json
+{
+  "error": "Unauthorized",
+  "message": "Missing or invalid API key. Provide a valid key in the Authorization header as: Bearer <api_key>"
+}
+```
+
+Check the header format:
+
+```http
+Authorization: Bearer YOUR_API_KEY
+```
+
+## 404 Not Found
+
+Creating a task with a project ID that does not exist returns:
+
+```json
+{
+  "error": "Not Found",
+  "message": "No project found with project_id '00000000-0000-0000-0000-000000000000'. Create a project first using POST /projects."
+}
+```
+
+Deleting a task twice also returns `404` on the second request.
+
+## Troubleshooting checklist
+
+When a request fails:
+
+1. Confirm that the Bearer token is present.
+2. Confirm that the request URL uses the correct resource ID.
+3. Check all required fields.
+4. Use only supported task statuses.
+5. Verify that the task has not already been deleted.
+
+## Empty update requests
+
+The API specification states that a task update should contain at least one of these fields:
+
+- `status`
+- `title`
+- `description`
+
+During live API testing, an empty JSON object returned `200 OK` and changed only `updated_at`.
+
+<Warning>
+  Do not rely on this behavior. Always send at least one supported field. The empty-update behavior may change because it differs from the intended contract.
+</Warning>

@@ -1,0 +1,97 @@
+---
+title: "TaskFlow API"
+description: "Create projects and manage tasks with the TaskFlow REST API."
+sidebarTitle: "Introduction"
+---
+
+TaskFlow is a REST API for creating projects and managing tasks within those projects.
+
+Use the API to:
+
+- Create projects
+- Add tasks to existing projects
+- List all tasks in a project
+- Update task titles, descriptions, and statuses
+- Permanently delete tasks
+
+<CardGroup cols={2}>
+  <Card title="Get started" icon="rocket" href="/quickstart">
+    Create a project and its first task by following the complete quickstart workflow.
+  </Card>
+
+  <Card title="API reference" icon="code" href="/api-reference">
+    Explore every endpoint and view request and response schemas.
+  </Card>
+</CardGroup>
+
+## Base URL
+
+All API requests use the following base URL:
+
+```text
+https://test-writechoice.onrender.com
+```
+
+<Note>
+  The API may take up to 60 seconds to respond to the first request after a
+  period of inactivity.
+</Note>
+
+## Authentication
+
+Every request requires an API key using Bearer authentication:
+
+```http
+Authorization: Bearer YOUR_API_KEY
+```
+
+Keep your API key private and never commit it to source control.
+
+## How TaskFlow resources work
+
+Projects and tasks have a dependent relationship. A task cannot exist without a project.
+
+<Steps>
+  <Step title="Create a project">
+    Send a request to `POST /projects` and save the returned `project_id`.
+  </Step>
+
+<Step title="Create a task">
+  Send the project ID to `POST /tasks`. New tasks start with the `pending`
+  status.
+</Step>
+
+  <Step title="Manage the task">
+    Use the returned `task_id` to update or permanently delete the task.
+  </Step>
+</Steps>
+
+## Task statuses
+
+A task can have one of three statuses:
+
+| Status        | Meaning                                |
+| ------------- | -------------------------------------- |
+| `pending`     | The task has not been started.         |
+| `in_progress` | The task is currently being worked on. |
+| `done`        | The task has been completed.           |
+
+A typical task lifecycle is:
+
+```text
+pending → in_progress → done
+```
+
+## Available operations
+
+| Method   | Endpoint                       | Description                               |
+| -------- | ------------------------------ | ----------------------------------------- |
+| `POST`   | `/projects`                    | Create a project.                         |
+| `POST`   | `/tasks`                       | Create a task inside an existing project. |
+| `GET`    | `/projects/{project_id}/tasks` | List all tasks in a project.              |
+| `PATCH`  | `/tasks/{task_id}`             | Update a task.                            |
+| `DELETE` | `/tasks/{task_id}`             | Permanently delete a task.                |
+
+## Next step
+
+Continue to the [Quickstart](/quickstart) to make your first authenticated request and complete the TaskFlow workflow.

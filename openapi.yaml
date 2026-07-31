@@ -25,7 +25,7 @@ components:
       scheme: bearer
       description: >
         All requests must include a valid API key in the Authorization header.
-        Example: `Authorization: Bearer tf-live-4a8f2c1e9b3d7e6a`
+        Example: `Authorization: Bearer YOUR_API_KEY`
 
   schemas:
     Project:

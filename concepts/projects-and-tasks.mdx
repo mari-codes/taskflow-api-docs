@@ -1,0 +1,97 @@
+---
+title: "Projects and tasks"
+description: "Understand how TaskFlow projects and tasks relate to each other."
+sidebarTitle: "Projects and tasks"
+icon: "diagram-project"
+---
+
+TaskFlow organizes work into two resources: projects and tasks.
+
+## Resource relationship
+
+A project is the parent resource. Every task belongs to one project and contains that project's `project_id`.
+
+```text
+Project
+└── Task
+└── Task
+└── Task
+```
+
+You must create a project before creating a task.
+
+<Steps>
+  <Step title="Create the project">
+    Call `POST /projects` and save the returned `project_id`.
+  </Step>
+
+  <Step title="Create a task">
+    Include the saved `project_id` when calling `POST /tasks`.
+  </Step>
+
+  <Step title="Manage the task">
+    Save the returned `task_id` to update or delete that task.
+  </Step>
+</Steps>
+
+## Project fields
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `project_id` | UUID string | Unique ID generated when the project is created. |
+| `name` | String | Required project name. |
+| `description` | String or null | Optional project description. |
+| `created_at` | Date-time string | Time when the project was created. |
+
+## Task fields
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `task_id` | UUID string | Unique ID generated when the task is created. |
+| `project_id` | UUID string | ID of the project that owns the task. |
+| `title` | String | Required task title. |
+| `description` | String or null | Optional task description. |
+| `status` | String | One of `pending`, `in_progress`, or `done`. |
+| `created_at` | Date-time string | Time when the task was created. |
+| `updated_at` | Date-time string | Time when the task was last updated. |
+
+## Working with IDs
+
+IDs returned by one request are required by later requests:
+
+| Returned ID | Used by |
+| --- | --- |
+| `project_id` | Create a task and list a project's tasks. |
+| `task_id` | Update or delete a task. |
+
+Store these values in variables when testing the API. For example:
+
+```text
+projectId = 58a61c80-6409-4ed7-a03d-0cace79fdf2f
+taskId = b7a0263b-7078-4f65-82a6-6261d0087837
+```
+
+## Available project operations
+
+The current API supports creating a project and listing the tasks that belong to it.
+
+It does not provide operations to:
+
+- List all projects.
+- Retrieve one project by ID.
+- Update a project.
+- Delete a project.
+
+## Empty projects
+
+When a project exists but has no tasks, the list endpoint returns `200 OK`:
+
+```json
+{
+  "project_id": "58a61c80-6409-4ed7-a03d-0cace79fdf2f",
+  "total": 0,
+  "tasks": []
+}
+```
+
+A nonexistent project returns `404 Not Found` instead.
