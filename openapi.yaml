@@ -1,0 +1,414 @@
+openapi: 3.1.0
+
+info:
+  title: TaskFlow API
+  version: 1.0.0
+  description: >
+    TaskFlow is a simple task management API that allows you to create projects,
+    manage tasks within those projects, update task statuses, and delete tasks.
+
+    **Important:** Most operations depend on each other. You must create a project
+    before creating tasks, and you must create a task before updating or deleting it.
+    Follow the workflow described in the guides to use the API correctly.
+
+servers:
+  - url: https://test-writechoice.onrender.com/
+    description: Production server
+
+security:
+  - BearerAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: >
+        All requests must include a valid API key in the Authorization header.
+        Example: `Authorization: Bearer tf-live-4a8f2c1e9b3d7e6a`
+
+  schemas:
+    Project:
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+          description: Unique identifier for the project. Generated automatically.
+          example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+        name:
+          type: string
+          description: The name of the project.
+          example: "API Documentation Revamp"
+        description:
+          type: string
+          nullable: true
+          description: An optional description of the project.
+          example: "Rewriting all public-facing API docs for v2."
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp of when the project was created.
+          example: "2025-05-12T10:30:00.000Z"
+
+    Task:
+      type: object
+      properties:
+        task_id:
+          type: string
+          format: uuid
+          description: Unique identifier for the task. Generated automatically.
+          example: "f9e8d7c6-b5a4-3210-fedc-ba9876543210"
+        project_id:
+          type: string
+          format: uuid
+          description: The ID of the project this task belongs to.
+          example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+        title:
+          type: string
+          description: The title of the task.
+          example: "Write introduction page"
+        description:
+          type: string
+          nullable: true
+          description: An optional description of the task.
+          example: "Draft the overview and getting started sections."
+        status:
+          type: string
+          enum: [pending, in_progress, done]
+          description: >
+            The current status of the task.
+            - `pending`: The task has not been started.
+            - `in_progress`: The task is actively being worked on.
+            - `done`: The task has been completed.
+          example: "pending"
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp of when the task was created.
+          example: "2025-05-12T10:35:00.000Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Timestamp of the last update to the task.
+          example: "2025-05-12T11:00:00.000Z"
+
+    TaskList:
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+          description: The ID of the project being queried.
+        total:
+          type: integer
+          description: Total number of tasks in the project.
+          example: 3
+        tasks:
+          type: array
+          items:
+            $ref: "#/components/schemas/Task"
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Short error type.
+          example: "Not Found"
+        message:
+          type: string
+          description: Human-readable explanation of the error.
+          example: "No project found with project_id 'abc123'."
+
+paths:
+  /projects:
+    post:
+      summary: Create a project
+      operationId: createProject
+      description: >
+        Creates a new project. The `project_id` returned in the response is required
+        to create tasks. You must create a project before creating any tasks.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  description: The name of the project. Required.
+                  example: "API Documentation Revamp"
+                description:
+                  type: string
+                  description: An optional description of the project.
+                  example: "Rewriting all public-facing API docs for v2."
+      responses:
+        "201":
+          description: Project created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+              example:
+                project_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                name: "API Documentation Revamp"
+                description: "Rewriting all public-facing API docs for v2."
+                created_at: "2025-05-12T10:30:00.000Z"
+        "400":
+          description: Missing or invalid request body.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error: "Bad Request"
+                message: "The 'name' field is required and must be a non-empty string."
+        "401":
+          description: Missing or invalid API key.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error: "Unauthorized"
+                message: "Missing or invalid API key. Provide a valid key in the Authorization header as: Bearer <api_key>"
+
+  /tasks:
+    post:
+      summary: Create a task
+      operationId: createTask
+      description: >
+        Creates a new task inside an existing project. Requires a valid `project_id`
+        obtained from `POST /projects`. Tasks are created with a default status of `pending`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - project_id
+                - title
+              properties:
+                project_id:
+                  type: string
+                  format: uuid
+                  description: The ID of the project to add the task to. Required.
+                  example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                title:
+                  type: string
+                  description: The title of the task. Required.
+                  example: "Write introduction page"
+                description:
+                  type: string
+                  description: An optional description of the task.
+                  example: "Draft the overview and getting started sections."
+      responses:
+        "201":
+          description: Task created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+              example:
+                task_id: "f9e8d7c6-b5a4-3210-fedc-ba9876543210"
+                project_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                title: "Write introduction page"
+                description: "Draft the overview and getting started sections."
+                status: "pending"
+                created_at: "2025-05-12T10:35:00.000Z"
+                updated_at: "2025-05-12T10:35:00.000Z"
+        "400":
+          description: Missing or invalid request body.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Missing or invalid API key.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Project not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error: "Not Found"
+                message: "No project found with project_id 'abc123'. Create a project first using POST /projects."
+
+  /projects/{project_id}/tasks:
+    get:
+      summary: List tasks in a project
+      operationId: listTasks
+      description: >
+        Returns all tasks belonging to a specific project. Requires a valid `project_id`.
+        Returns an empty `tasks` array if the project exists but has no tasks yet.
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          description: The ID of the project whose tasks you want to retrieve.
+          schema:
+            type: string
+            format: uuid
+          example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+      responses:
+        "200":
+          description: Tasks retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskList"
+              example:
+                project_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                total: 1
+                tasks:
+                  - task_id: "f9e8d7c6-b5a4-3210-fedc-ba9876543210"
+                    project_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                    title: "Write introduction page"
+                    description: "Draft the overview and getting started sections."
+                    status: "pending"
+                    created_at: "2025-05-12T10:35:00.000Z"
+                    updated_at: "2025-05-12T10:35:00.000Z"
+        "401":
+          description: Missing or invalid API key.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Project not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error: "Not Found"
+                message: "No project found with project_id 'abc123'."
+
+  /tasks/{task_id}:
+    patch:
+      summary: Update a task
+      operationId: updateTask
+      description: >
+        Updates one or more fields of an existing task. You can update the `status`,
+        `title`, or `description`. At least one field must be provided.
+        Valid status values are: `pending`, `in_progress`, `done`.
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          description: The ID of the task to update.
+          schema:
+            type: string
+            format: uuid
+          example: "f9e8d7c6-b5a4-3210-fedc-ba9876543210"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [pending, in_progress, done]
+                  description: The new status for the task.
+                  example: "in_progress"
+                title:
+                  type: string
+                  description: A new title for the task.
+                  example: "Write introduction and quickstart pages"
+                description:
+                  type: string
+                  description: A new description for the task.
+                  example: "Updated scope to include quickstart."
+      responses:
+        "200":
+          description: Task updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+              example:
+                task_id: "f9e8d7c6-b5a4-3210-fedc-ba9876543210"
+                project_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                title: "Write introduction page"
+                description: "Draft the overview and getting started sections."
+                status: "in_progress"
+                created_at: "2025-05-12T10:35:00.000Z"
+                updated_at: "2025-05-12T11:00:00.000Z"
+        "400":
+          description: Invalid status value or missing fields.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error: "Bad Request"
+                message: "Invalid status 'completed'. Allowed values are: pending, in_progress, done."
+        "401":
+          description: Missing or invalid API key.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Task not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error: "Not Found"
+                message: "No task found with task_id 'abc123'."
+
+    delete:
+      summary: Delete a task
+      operationId: deleteTask
+      description: >
+        Permanently deletes a task. This action cannot be undone.
+        Requires a valid `task_id` obtained from `POST /tasks`.
+      parameters:
+        - name: task_id
+          in: path
+          required: true
+          description: The ID of the task to delete.
+          schema:
+            type: string
+            format: uuid
+          example: "f9e8d7c6-b5a4-3210-fedc-ba9876543210"
+      responses:
+        "200":
+          description: Task deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Task 'f9e8d7c6-b5a4-3210-fedc-ba9876543210' was successfully deleted."
+        "401":
+          description: Missing or invalid API key.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Task not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error: "Not Found"
+                message: "No task found with task_id 'abc123'."
