@@ -4,9 +4,9 @@
   "name": "TaskFlow API",
   "description": "Developer documentation for creating projects and managing tasks with the TaskFlow API.",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#22C55E",
-    "dark": "#15803D"
+    "primary": "#5B21B6",
+    "light": "#21F7E8",
+    "dark": "#14B8A6"
   },
   "favicon": "/favicon.png",
   "navigation": {
