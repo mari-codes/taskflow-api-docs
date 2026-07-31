@@ -1,0 +1,192 @@
+---
+title: "Manage a task"
+description: "Create a project, create a task, move it through its lifecycle, and delete it."
+sidebarTitle: "Manage a task"
+icon: "list-check"
+---
+
+This guide walks through a complete TaskFlow workflow using cURL.
+
+You will:
+
+1. Create a project.
+2. Create a task in that project.
+3. Move the task to `in_progress`.
+4. Update its title and description.
+5. Mark it as `done`.
+6. Delete it.
+
+## Before you begin
+
+You need a valid TaskFlow API key.
+
+Set these shell variables to make the examples easier to reuse:
+
+```bash
+export TASKFLOW_BASE_URL="https://test-writechoice.onrender.com"
+export TASKFLOW_API_KEY="YOUR_API_KEY"
+```
+
+<Note>
+  The first request may take up to 60 seconds if the API has been idle.
+</Note>
+
+## 1. Create a project
+
+```bash
+curl --request POST \
+  --url "$TASKFLOW_BASE_URL/projects" \
+  --header "Authorization: Bearer $TASKFLOW_API_KEY" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "name": "Documentation launch",
+    "description": "Tasks required to publish the documentation."
+  }'
+```
+
+A successful request returns `201 Created`:
+
+```json
+{
+  "project_id": "58a61c80-6409-4ed7-a03d-0cace79fdf2f",
+  "name": "Documentation launch",
+  "description": "Tasks required to publish the documentation.",
+  "created_at": "2026-07-31T16:14:28.818Z"
+}
+```
+
+Save the returned project ID:
+
+```bash
+export PROJECT_ID="58a61c80-6409-4ed7-a03d-0cace79fdf2f"
+```
+
+## 2. Create a task
+
+```bash
+curl --request POST \
+  --url "$TASKFLOW_BASE_URL/tasks" \
+  --header "Authorization: Bearer $TASKFLOW_API_KEY" \
+  --header "Content-Type: application/json" \
+  --data "{
+    \"project_id\": \"$PROJECT_ID\",
+    \"title\": \"Review the quickstart guide\",
+    \"description\": \"Check the workflow and code examples before publishing.\"
+  }"
+```
+
+A successful request returns a task with the default `pending` status:
+
+```json
+{
+  "task_id": "128395aa-1680-4359-ac5f-11efbd9624ac",
+  "project_id": "58a61c80-6409-4ed7-a03d-0cace79fdf2f",
+  "title": "Review the quickstart guide",
+  "description": "Check the workflow and code examples before publishing.",
+  "status": "pending",
+  "created_at": "2026-07-31T16:43:33.598Z",
+  "updated_at": "2026-07-31T16:43:33.598Z"
+}
+```
+
+Save the returned task ID:
+
+```bash
+export TASK_ID="128395aa-1680-4359-ac5f-11efbd9624ac"
+```
+
+## 3. Start the task
+
+```bash
+curl --request PATCH \
+  --url "$TASKFLOW_BASE_URL/tasks/$TASK_ID" \
+  --header "Authorization: Bearer $TASKFLOW_API_KEY" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "status": "in_progress"
+  }'
+```
+
+The response contains the full updated task.
+
+## 4. Update task details
+
+You can update the title and description in the same request:
+
+```bash
+curl --request PATCH \
+  --url "$TASKFLOW_BASE_URL/tasks/$TASK_ID" \
+  --header "Authorization: Bearer $TASKFLOW_API_KEY" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "title": "Review and approve the quickstart guide",
+    "description": "Verify the workflow, examples, and internal links."
+  }'
+```
+
+Fields omitted from the request remain unchanged.
+
+<Warning>
+  Include at least one of `status`, `title`, or `description` in every update
+  request.
+</Warning>
+
+## 5. Complete the task
+
+```bash
+curl --request PATCH \
+  --url "$TASKFLOW_BASE_URL/tasks/$TASK_ID" \
+  --header "Authorization: Bearer $TASKFLOW_API_KEY" \
+  --header "Content-Type: application/json" \
+  --data '{
+    "status": "done"
+  }'
+```
+
+The task has now moved through the typical lifecycle:
+
+```text
+pending → in_progress → done
+```
+
+## 6. Confirm the task in the project
+
+```bash
+curl --request GET \
+  --url "$TASKFLOW_BASE_URL/projects/$PROJECT_ID/tasks" \
+  --header "Authorization: Bearer $TASKFLOW_API_KEY"
+```
+
+The response includes the total number of tasks and the project's task list.
+
+## 7. Delete the task
+
+```bash
+curl --request DELETE \
+  --url "$TASKFLOW_BASE_URL/tasks/$TASK_ID" \
+  --header "Authorization: Bearer $TASKFLOW_API_KEY"
+```
+
+A successful request returns:
+
+```json
+{
+  "message": "Task '128395aa-1680-4359-ac5f-11efbd9624ac' was successfully deleted."
+}
+```
+
+<Warning>
+  Deleting a task is permanent. A later request using the deleted `task_id`
+  returns `404 Not Found`.
+</Warning>
+
+## Troubleshooting
+
+| Problem            | What to check                                                               |
+| ------------------ | --------------------------------------------------------------------------- |
+| `401 Unauthorized` | Confirm that the Bearer token is present and valid.                         |
+| Project not found  | Confirm that `PROJECT_ID` came from a successful `POST /projects` response. |
+| Task not found     | Confirm that `TASK_ID` is correct and that the task has not been deleted.   |
+| Invalid status     | Use only `pending`, `in_progress`, or `done`.                               |
+
+See [Errors and troubleshooting](/resources/errors) for more examples.

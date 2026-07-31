@@ -1,0 +1,128 @@
+---
+title: "API overview"
+description: "Review TaskFlow API conventions, resources, authentication, and endpoint order."
+sidebarTitle: "API overview"
+icon: "brackets-curly"
+---
+
+The TaskFlow API is a JSON REST API for creating projects and managing their tasks.
+
+## Base URL
+
+```text
+https://test-writechoice.onrender.com
+```
+
+<Note>
+  The first request may take up to 60 seconds after a period of inactivity.
+</Note>
+
+## Authentication
+
+All endpoints require Bearer authentication:
+
+```http
+Authorization: Bearer YOUR_API_KEY
+```
+
+See [Authentication](/getting-started/authentication) for setup and troubleshooting instructions.
+
+## Content type
+
+Requests with a JSON body should include:
+
+```http
+Content-Type: application/json
+```
+
+Responses are returned as JSON.
+
+## Resources
+
+TaskFlow contains two resources:
+
+| Resource | Purpose                                                                         |
+| -------- | ------------------------------------------------------------------------------- |
+| Project  | Groups related tasks and provides the `project_id` required by task operations. |
+| Task     | Represents a unit of work that belongs to one project.                          |
+
+A project must exist before a task can be created.
+
+## Recommended endpoint order
+
+<Steps>
+  <Step title="Create a project">
+    Call `POST /projects` and save the returned `project_id`.
+  </Step>
+
+<Step title="Create a task">
+  Call `POST /tasks` with the saved project ID and save the returned `task_id`.
+</Step>
+
+<Step title="List project tasks">
+  Call `GET /projects/{project_id}/tasks` to retrieve the project's tasks.
+</Step>
+
+<Step title="Update the task">
+  Call `PATCH /tasks/{task_id}` to change its status, title, or description.
+</Step>
+
+  <Step title="Delete the task">
+    Call `DELETE /tasks/{task_id}` when the task is no longer needed.
+  </Step>
+</Steps>
+
+## Endpoints
+
+### Projects
+
+| Method | Endpoint                       | Description                        |
+| ------ | ------------------------------ | ---------------------------------- |
+| `POST` | `/projects`                    | Create a project.                  |
+| `GET`  | `/projects/{project_id}/tasks` | List tasks belonging to a project. |
+
+### Tasks
+
+| Method   | Endpoint           | Description                           |
+| -------- | ------------------ | ------------------------------------- |
+| `POST`   | `/tasks`           | Create a task in an existing project. |
+| `PATCH`  | `/tasks/{task_id}` | Update a task.                        |
+| `DELETE` | `/tasks/{task_id}` | Permanently delete a task.            |
+
+Use the API Reference sidebar to open the generated page for each operation.
+
+## Task statuses
+
+The `status` field accepts:
+
+| Value         | Meaning                        |
+| ------------- | ------------------------------ |
+| `pending`     | The task has not been started. |
+| `in_progress` | The task is being worked on.   |
+| `done`        | The task has been completed.   |
+
+## Date and ID formats
+
+Resource IDs use UUID strings:
+
+```text
+58a61c80-6409-4ed7-a03d-0cace79fdf2f
+```
+
+Timestamps use ISO 8601 date-time strings:
+
+```text
+2026-07-31T16:20:21.800Z
+```
+
+## Status codes
+
+| Status             | Meaning                                        |
+| ------------------ | ---------------------------------------------- |
+| `200 OK`           | A read, update, or delete operation succeeded. |
+| `201 Created`      | A project or task was created.                 |
+| `400 Bad Request`  | The request contains missing or invalid data.  |
+| `401 Unauthorized` | The API key is missing or invalid.             |
+| `404 Not Found`    | The requested project or task does not exist.  |
+
+See [Errors and troubleshooting](/resources/errors) for response examples and debugging guidance.
