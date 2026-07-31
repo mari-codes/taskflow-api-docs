@@ -1,55 +1,189 @@
-# Mintlify Starter Kit
+# TaskFlow API Documentation
 
-Use the starter kit to get your docs deployed and ready to customize.
+Public developer documentation for the TaskFlow API, built with Mintlify and generated from the provided OpenAPI specification.
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
+## Project links
 
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
+- Live documentation: ``
+- GitHub repository: `https://github.com/mari-codes/taskflow-api-docs`
 
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
+## About the project
 
-## AI-assisted writing
+TaskFlow is a simple task management API that allows developers to:
 
-Set up your AI coding tool to work with Mintlify:
+- Create projects
+- Create tasks inside existing projects
+- List tasks that belong to a project
+- Update task titles, descriptions, and statuses
+- Permanently delete tasks
+
+This repository contains the public-facing documentation created for the TaskFlow Technical Writing Test.
+
+## Documentation structure
+
+The documentation is organized around the developer journey.
+
+### Getting started
+
+Introduces the API and helps a developer complete the first successful workflow.
+
+- Introduction
+- Quickstart
+- Authentication
+
+### Core concepts
+
+Explains how the API resources behave.
+
+- Projects and tasks
+- Task lifecycle
+
+### Guides
+
+Provides task-oriented instructions for completing a full workflow.
+
+- Manage a task
+
+### Resources
+
+Helps developers understand and troubleshoot failed requests.
+
+- Errors and troubleshooting
+
+### API reference
+
+The endpoint reference is generated from `openapi.yaml` and grouped by resource:
+
+- Projects
+- Tasks
+
+## Run locally
+
+### Prerequisites
+
+- Node.js
+- Mintlify CLI
+- Git
+
+Install the Mintlify CLI:
 
 ```bash
-npx skills add https://mintlify.com/docs
+npm install -g mint
 ```
 
-This command installs Mintlify's documentation skill for your configured AI tools like Claude Code, Cursor, Windsurf, and others. The skill includes component reference, writing standards, and workflow guidance.
+Clone the repository:
 
-See the [AI tools guides](/ai-tools) for tool-specific setup.
-
-## Development
-
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
-
-```
-npm i -g mint
+```bash
+git clone https://github.com/mari-codes/taskflow-api-docs.git
+cd taskflow-api-docs
 ```
 
-Run the following command at the root of your documentation, where your `docs.json` is located:
+Start the local documentation server:
 
-```
+```bash
 mint dev
 ```
 
-View your local preview at `http://localhost:3000`.
+Open the local site in your browser:
 
-## Publishing changes
+```text
+http://localhost:3000
+```
 
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
+## Validate the project
 
-## Need help?
+Validate the documentation configuration:
 
-### Troubleshooting
+```bash
+mint validate
+```
 
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
+Validate the OpenAPI specification:
 
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
+```bash
+mint openapi-check openapi.yaml
+```
+
+## API testing
+
+The live API was tested manually with Postman before the documentation was written.
+
+The tested workflow included:
+
+1. Creating a project
+2. Creating a task
+3. Listing a project's tasks
+4. Updating a task
+5. Deleting a task
+
+Additional tests covered:
+
+- Missing and invalid authentication
+- Missing required fields
+- Invalid project IDs
+- Empty task lists
+- Nonexistent projects
+- Invalid task statuses
+- Repeated task deletion
+- Empty task update requests
+
+Detailed testing notes are available in:
+
+```text
+internal/testing-notes.md
+```
+
+## Known API discrepancy
+
+The OpenAPI specification states that `PATCH /tasks/{task_id}` requires at least one of these fields:
+
+- `status`
+- `title`
+- `description`
+
+During live testing, the API accepted an empty JSON object, returned `200 OK`, and updated only the `updated_at` timestamp.
+
+The public documentation follows the intended OpenAPI contract and instructs developers to provide at least one supported update field.
+
+## Repository structure
+
+```text
+taskflow-api-docs/
+├── api-reference/
+│   └── overview.mdx
+├── concepts/
+│   ├── projects-and-tasks.mdx
+│   └── task-lifecycle.mdx
+├── getting-started/
+│   ├── authentication.mdx
+│   └── quickstart.mdx
+├── guides/
+│   └── manage-a-task.mdx
+├── internal/
+│   ├── submission-summary.md
+│   └── testing-notes.md
+├── resources/
+│   └── errors.mdx
+├── docs.json
+├── index.mdx
+├── openapi.yaml
+└── README.md
+```
+
+## Security
+
+The API key used for live testing is not included in this repository.
+
+Public examples use:
+
+```http
+Authorization: Bearer YOUR_API_KEY
+```
+
+## Built with
+
+- Mintlify
+- OpenAPI 3.1
+- MDX
+- GitHub
+- Postman
