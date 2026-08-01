@@ -111,15 +111,16 @@ components:
 
     Error:
       type: object
+      required:
+        - error
+        - message
       properties:
         error:
           type: string
           description: Short error type.
-          example: "Not Found"
         message:
           type: string
           description: Human-readable explanation of the error.
-          example: "No project found with project_id 'abc123'."
 
 paths:
   /projects:
@@ -228,12 +229,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+              example:
+                error: "Bad Request"
+                message: "The 'project_id' field is required."
         "401":
           description: Missing or invalid API key.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+              example:
+                error: "Unauthorized"
+                message: "Missing or invalid API key. Provide a valid key in the Authorization header as: Bearer <api_key>"
         "404":
           description: Project not found.
           content:
@@ -284,6 +291,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+              example:
+                error: "Unauthorized"
+                message: "Missing or invalid API key. Provide a valid key in the Authorization header as: Bearer <api_key>"
         "404":
           description: Project not found.
           content:
@@ -361,6 +371,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+              example:
+                error: "Unauthorized"
+                message: "Missing or invalid API key. Provide a valid key in the Authorization header as: Bearer <api_key>"
         "404":
           description: Task not found.
           content:
@@ -403,6 +416,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+              example:
+                error: "Unauthorized"
+                message: "Missing or invalid API key. Provide a valid key in the Authorization header as: Bearer <api_key>"
         "404":
           description: Task not found.
           content:
